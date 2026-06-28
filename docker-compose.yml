@@ -1,0 +1,7 @@
+services:
+  qa-horoscope-bot:
+    build: .
+    container_name: qa-horoscope-bot
+    env_file:
+      - .env
+    restart: unless-stopped
