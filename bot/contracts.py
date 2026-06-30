@@ -48,3 +48,22 @@ def is_valid_horoscope_text(text: str) -> bool:
     if not matches_expected_structure(text):
         return False
     return True
+
+
+def is_valid_personal_message(text: str, name: str, category_label: str) -> bool:
+    """Contract for AI-personalized messages: non-empty envelope, right shape.
+
+    Unlike ``is_valid_horoscope_text`` this does not pin down the AI-written
+    body content — only the deterministic envelope (emoji header, category,
+    name) that ``bot/personal_message.py`` always produces regardless of
+    whether the body came from the AI or the static fallback.
+    """
+    if not text or not text.strip():
+        return False
+    if not text.startswith("🔮"):
+        return False
+    if name not in text:
+        return False
+    if category_label not in text:
+        return False
+    return True

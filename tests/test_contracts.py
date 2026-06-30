@@ -6,12 +6,16 @@ contract from the spec (ТЗ):
 """
 from datetime import date, timedelta
 
+from bot.categories import get_category
 from bot.contracts import (
     has_qa_context,
     is_valid_horoscope_text,
+    is_valid_personal_message,
     matches_expected_structure,
 )
 from bot.horoscope import generate_horoscope
+from bot.personal_message import render_personal_message
+from bot.storage import Profile
 
 
 def _render(user_id: int, horoscope_date: date) -> str:
@@ -51,3 +55,29 @@ def test_contract_holds_for_many_users_and_dates():
         for day_offset in range(10):
             text = _render(user_id, base_date + timedelta(days=day_offset))
             assert is_valid_horoscope_text(text), text
+
+
+def _make_profile() -> Profile:
+    return Profile(
+        user_id=1,
+        name="Аня",
+        birth_date=date(1995, 5, 17),
+        level="middle",
+        specialization="automation",
+    )
+
+
+def test_personal_message_contract_holds_for_every_category():
+    profile = _make_profile()
+
+    for category in get_category("bug"), get_category("support"):
+        text = render_personal_message(profile, category, "Любой текст от AI или фолбэка.")
+        assert is_valid_personal_message(text, profile.name, category.label), text
+
+
+def test_personal_message_contract_rejects_text_without_name():
+    assert is_valid_personal_message("🔮 Баг дня\n\nТекст", "Аня", "🐛 Баг дня") is False
+
+
+def test_personal_message_contract_rejects_text_without_envelope_emoji():
+    assert is_valid_personal_message("Баг дня для Ани\n\nТекст", "Аня", "🐛 Баг дня") is False

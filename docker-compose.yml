@@ -4,4 +4,6 @@ services:
     container_name: qa-horoscope-bot
     env_file:
       - .env
+    volumes:
+      - ./data:/app/data
     restart: unless-stopped
